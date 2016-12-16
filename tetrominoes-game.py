@@ -14,7 +14,6 @@ def clear_shape(shape, originX, originY):
 
 sense = SenseHat()
 sense.set_rotation(180)
-sense.clear() # Temporarily moved this for quicker testing
 sense.low_light = True
 
 shape_colour = [255, 153, 51]
@@ -49,6 +48,7 @@ shapes = [
     ]
 ]
 
+sense.clear(background_colour)
 for i in range(len(shapes)):
     display_shape(shapes[i], 0, 0)
     sleep(0.5)
