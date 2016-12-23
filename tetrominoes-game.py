@@ -25,6 +25,9 @@ def compute_width(shape):
             max_width = current_width
     return max_width
 
+def is_shape_underneath(shape, originX, originY):
+    return False # Need to implement properly
+
 # Initial setup
 sense = SenseHat()
 sense.set_rotation(180)
@@ -70,11 +73,15 @@ count = 0
 sense.clear(background_colour)
 while True:
     # Move shapes in `moving_shapes` down by 1
-    for i in range(len(moving_shapes)):
-        if (moving_shapes[i][2] < 8 - len(moving_shapes[i][0])):
-            clear_shape(moving_shapes[i][0], moving_shapes[i][1], moving_shapes[i][2])
-            moving_shapes[i][2] += 1
-            display_shape(moving_shapes[i][0], moving_shapes[i][1], moving_shapes[i][2])
+    for shape in moving_shapes:
+        if ((not is_shape_underneath(shape[0], shape[1], shape[2]))
+                and (shape[2] < 8 - len(shape[0]))):
+            clear_shape(shape[0], shape[1], shape[2])
+            shape[2] += 1
+            display_shape(shape[0], shape[1], shape[2])
+        else:
+            moving_shapes.remove(shape)
+            still_shapes.append(shape)
 
     # Set count to zero if reached `ADD_SHAPE_INTERVAL`
     if (count >= ADD_SHAPE_INTERVAL):
