@@ -83,7 +83,7 @@ while True:
     # If interval reached, choose random shape type then add to `moving_shapes` list
     if (count == 0):
         shape = shape_types[randrange(len(shape_types))]
-        originX = randrange(8 - compute_width(shape))
+        originX = randrange(9 - compute_width(shape))
         originY = 0
         display_shape(shape, originX, originY)
         moving_shapes.append([shape, originX, originY])
