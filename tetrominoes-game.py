@@ -1,21 +1,26 @@
-from sense_hat import SenseHat
-from time import sleep
 from random import randrange
+from time import sleep
+
+from sense_emu import SenseHat
+
 
 def display_shape(shape, originX, originY, clear = False):
     for i in range(len(shape)):
         for j in range(len(shape[i])):
-            if (shape[i][j]):
+            if shape[i][j]:
                 x = originX + j
                 y = originY + i
                 sense.set_pixel(x, y, background_colour if clear else shape_colour)
 
+
 def clear_shape(shape, originX, originY):
     display_shape(shape, originX, originY, True)
+
 
 def translate_shape(shape, sourceOriginX, sourceOriginY, destOriginX, destOriginY):
     clear_shape(shape, sourceOriginX, sourceOriginY)
     display_shape(shape, destOriginX, destOriginY)
+
 
 def compute_width(shape):
     max_width = 0
@@ -25,13 +30,15 @@ def compute_width(shape):
             max_width = current_width
     return max_width
 
+
 def is_shape_underneath(shape, originX, originY):
-    return False # Need to implement properly
+    return False  # Need to implement properly
+
 
 # Initial setup
 sense = SenseHat()
 sense.set_rotation(180)
-sense.low_light = True
+# sense.low_light = True
 
 ADD_SHAPE_INTERVAL = 7
 
@@ -84,11 +91,11 @@ while True:
             still_shapes.append(shape)
 
     # Set count to zero if reached `ADD_SHAPE_INTERVAL`
-    if (count >= ADD_SHAPE_INTERVAL):
+    if count >= ADD_SHAPE_INTERVAL:
         count = 0
 
     # If interval reached, choose random shape type then add to `moving_shapes` list
-    if (count == 0):
+    if count == 0:
         shape = shape_types[randrange(len(shape_types))]
         originX = randrange(9 - compute_width(shape))
         originY = 0
@@ -99,4 +106,4 @@ while True:
     count += 1
     sleep(0.2)
 
-sense.low_light = False
+# sense.low_light = False
