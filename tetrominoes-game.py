@@ -1,106 +1,122 @@
 from random import randrange
 from time import sleep
 
+from euclid import Point2, Vector2
 from sense_emu import SenseHat
 
 
-def display_shape(shape, originX, originY, clear = False):
-    for i in range(len(shape)):
-        for j in range(len(shape[i])):
-            if shape[i][j]:
-                x = originX + j
-                y = originY + i
-                sense.set_pixel(x, y, background_colour if clear else shape_colour)
+class Shape:
+    def __init__(self, shape_type, pos, vel):
+        self.shape_type = shape_type
+        self.pos = pos
+        self.vel = vel
+
+    def display(self):
+        for point in self.shape_type.points:
+            actual_pos = self.pos + point
+            sense.set_pixel(actual_pos.x, actual_pos.y, shape_colour)
+
+    def collides(self):
+        return False  # Need to implement properly
 
 
-def clear_shape(shape, originX, originY):
-    display_shape(shape, originX, originY, True)
+class ShapeType:
+    def __init__(self, points):
+        self.points = points
 
+    def compute_width(self):
+        max_x = max(point.x for point in self.points)
+        min_x = min(point.x for point in self.points)
+        return abs(max_x - min_x) + 1
 
-def translate_shape(shape, sourceOriginX, sourceOriginY, destOriginX, destOriginY):
-    clear_shape(shape, sourceOriginX, sourceOriginY)
-    display_shape(shape, destOriginX, destOriginY)
-
-
-def compute_width(shape):
-    max_width = 0
-    for i in range(len(shape)):
-        current_width = len(shape[i])
-        if (current_width > max_width):
-            max_width = current_width
-    return max_width
-
-
-def is_shape_underneath(shape, originX, originY):
-    return False  # Need to implement properly
+    def compute_height(self):
+        max_y = max(point.y for point in self.points)
+        min_y = min(point.y for point in self.points)
+        return abs(max_y - min_y) + 1
 
 
 # Initial setup
 sense = SenseHat()
-sense.set_rotation(180)
+# sense.set_rotation(180)
 # sense.low_light = True
 
-ADD_SHAPE_INTERVAL = 7
+UPDATE_INTERVAL = 7
 
 shape_colour = [255, 153, 51]
 background_colour = [0, 0, 0]
 shape_types = [
-    [
-        [True, True, True, True]
-    ],
-    [
-        [True, True],
-        [True, True]
-    ],
-    [
-        [True, True, True],
-        [False, True]
-    ],
-    [
-        [True, True, True],
-        [True]
-    ],
-    [
-        [True, True, True],
-        [False, False, True]
-    ],
-    [
-        [False, True, True],
-        [True, True]
-    ],
-    [
-        [True, True],
-        [False, True, True]
-    ]
+    ShapeType([
+        Point2(0, 0),
+        Point2(0, 1),
+        Point2(0, 2),
+        Point2(0, 3),
+    ]),
+    ShapeType([
+        Point2(0, 0),
+        Point2(0, 1),
+        Point2(1, 0),
+        Point2(1, 1),
+    ]),
+    ShapeType([
+        Point2(0, 0),
+        Point2(0, 1),
+        Point2(0, 2),
+        Point2(1, 1),
+    ]),
+    ShapeType([
+        Point2(0, 0),
+        Point2(0, 1),
+        Point2(0, 2),
+        Point2(1, 0),
+    ]),
+    ShapeType([
+        Point2(0, 0),
+        Point2(0, 1),
+        Point2(0, 2),
+        Point2(1, 2),
+    ]),
+    ShapeType([
+        Point2(0, 1),
+        Point2(0, 2),
+        Point2(1, 0),
+        Point2(1, 1),
+    ]),
+    ShapeType([
+        Point2(0, 0),
+        Point2(0, 1),
+        Point2(1, 1),
+        Point2(1, 2),
+    ]),
 ]
-moving_shapes = []
-still_shapes = []
+shapes = set()
 count = 0
 
-sense.clear(background_colour)
 while True:
-    # Move shapes in `moving_shapes` down by 1
-    for shape in moving_shapes:
-        if ((not is_shape_underneath(shape[0], shape[1], shape[2]))
-                and (shape[2] < 8 - len(shape[0]))):
-            clear_shape(shape[0], shape[1], shape[2])
-            shape[2] += 1
-            display_shape(shape[0], shape[1], shape[2])
-        else:
-            moving_shapes.remove(shape)
-            still_shapes.append(shape)
+    sense.clear(background_colour)
+    # Update shape velocities
+    for shape in shapes:
+        if shape.collides() or shape.pos.y >= 8 - shape.shape_type.compute_height():
+            shape.vel = Vector2(0, 0)
 
-    # Set count to zero if reached `ADD_SHAPE_INTERVAL`
-    if count >= ADD_SHAPE_INTERVAL:
+    # Update shape positions based on their updated velocities
+    for shape in shapes:
+        shape.pos += shape.vel
+
+    # Display shapes
+    for shape in shapes:
+        shape.display()
+
+    # Set count to zero if update interval exceed
+    if count >= UPDATE_INTERVAL:
         count = 0
 
     # If interval reached, choose random shape type then add to `moving_shapes` list
     if count == 0:
-        shape = shape_types[randrange(len(shape_types))]
-        originX = randrange(9 - compute_width(shape))
-        originY = 0
-        display_shape(shape, originX, originY)
-        moving_shapes.append([shape, originX, originY])
+        shape_type = shape_types[randrange(len(shape_types))]
+        pos = Point2(randrange(9 - shape_type.compute_width()), 0)
+        initial_vel = Vector2(0, 1)
+        shape = Shape(shape_type, pos, initial_vel)
+        shapes.add(shape)
 
     # Increment count and wait
     count += 1
