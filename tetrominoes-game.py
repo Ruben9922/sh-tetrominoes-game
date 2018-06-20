@@ -16,7 +16,8 @@ class Shape:
     def display(self):
         for point in self.shape_type.points:
             actual_pos = self.pos + point
-            sense.set_pixel(actual_pos.x, actual_pos.y, self.shape_colour)
+            if 0 <= actual_pos.x <= 7 and 0 <= actual_pos.y <= 7:
+                sense.set_pixel(actual_pos.x, actual_pos.y, self.shape_colour)
 
     def collides(self, shapes):
         max_x = max(point.x for point in self.shape_type.points)
@@ -128,7 +129,7 @@ def main():
         # If interval reached, choose random shape type then add to `moving_shapes` list
         if count == 0:
             shape_type = shape_types[randrange(len(shape_types))]
-            pos = Point2(randrange(9 - shape_type.compute_width()), 0)
+            pos = Point2(randrange(9 - shape_type.compute_width()), 1 - shape_type.compute_height())
             initial_vel = Vector2(0, 1)
             shape = Shape(shape_type, pos, initial_vel)
             shapes.add(shape)
