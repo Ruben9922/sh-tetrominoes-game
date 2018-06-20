@@ -35,91 +35,93 @@ class ShapeType:
         return abs(max_y - min_y) + 1
 
 
-# Initial setup
-sense = SenseHat()
-# sense.set_rotation(180)
-# sense.low_light = True
+def main():
+    global sense, shape_colour
+    # Initial setup
+    sense = SenseHat()
+    # sense.set_rotation(180)
+    # sense.low_light = True
+    UPDATE_INTERVAL = 7
+    shape_colour = [255, 153, 51]
+    background_colour = [0, 0, 0]
+    shape_types = [
+        ShapeType([
+            Point2(0, 0),
+            Point2(0, 1),
+            Point2(0, 2),
+            Point2(0, 3),
+        ]),
+        ShapeType([
+            Point2(0, 0),
+            Point2(0, 1),
+            Point2(1, 0),
+            Point2(1, 1),
+        ]),
+        ShapeType([
+            Point2(0, 0),
+            Point2(0, 1),
+            Point2(0, 2),
+            Point2(1, 1),
+        ]),
+        ShapeType([
+            Point2(0, 0),
+            Point2(0, 1),
+            Point2(0, 2),
+            Point2(1, 0),
+        ]),
+        ShapeType([
+            Point2(0, 0),
+            Point2(0, 1),
+            Point2(0, 2),
+            Point2(1, 2),
+        ]),
+        ShapeType([
+            Point2(0, 1),
+            Point2(0, 2),
+            Point2(1, 0),
+            Point2(1, 1),
+        ]),
+        ShapeType([
+            Point2(0, 0),
+            Point2(0, 1),
+            Point2(1, 1),
+            Point2(1, 2),
+        ]),
+    ]
+    shapes = set()
+    count = 0
+    while True:
+        sense.clear(background_colour)
+        # Update shape velocities
+        for shape in shapes:
+            if shape.collides() or shape.pos.y >= 8 - shape.shape_type.compute_height():
+                shape.vel = Vector2(0, 0)
 
-UPDATE_INTERVAL = 7
+        # Update shape positions based on their updated velocities
+        for shape in shapes:
+            shape.pos += shape.vel
 
-shape_colour = [255, 153, 51]
-background_colour = [0, 0, 0]
-shape_types = [
-    ShapeType([
-        Point2(0, 0),
-        Point2(0, 1),
-        Point2(0, 2),
-        Point2(0, 3),
-    ]),
-    ShapeType([
-        Point2(0, 0),
-        Point2(0, 1),
-        Point2(1, 0),
-        Point2(1, 1),
-    ]),
-    ShapeType([
-        Point2(0, 0),
-        Point2(0, 1),
-        Point2(0, 2),
-        Point2(1, 1),
-    ]),
-    ShapeType([
-        Point2(0, 0),
-        Point2(0, 1),
-        Point2(0, 2),
-        Point2(1, 0),
-    ]),
-    ShapeType([
-        Point2(0, 0),
-        Point2(0, 1),
-        Point2(0, 2),
-        Point2(1, 2),
-    ]),
-    ShapeType([
-        Point2(0, 1),
-        Point2(0, 2),
-        Point2(1, 0),
-        Point2(1, 1),
-    ]),
-    ShapeType([
-        Point2(0, 0),
-        Point2(0, 1),
-        Point2(1, 1),
-        Point2(1, 2),
-    ]),
-]
-shapes = set()
-count = 0
+        # Display shapes
+        for shape in shapes:
+            shape.display()
 
-while True:
-    sense.clear(background_colour)
-    # Update shape velocities
-    for shape in shapes:
-        if shape.collides() or shape.pos.y >= 8 - shape.shape_type.compute_height():
-            shape.vel = Vector2(0, 0)
+        # Set count to zero if update interval exceed
+        if count >= UPDATE_INTERVAL:
+            count = 0
 
-    # Update shape positions based on their updated velocities
-    for shape in shapes:
-        shape.pos += shape.vel
+        # If interval reached, choose random shape type then add to `moving_shapes` list
+        if count == 0:
+            shape_type = shape_types[randrange(len(shape_types))]
+            pos = Point2(randrange(9 - shape_type.compute_width()), 0)
+            initial_vel = Vector2(0, 1)
+            shape = Shape(shape_type, pos, initial_vel)
+            shapes.add(shape)
 
-    # Display shapes
-    for shape in shapes:
-        shape.display()
+        # Increment count and wait
+        count += 1
+        sleep(0.2)
+    # sense.low_light = False
 
-    # Set count to zero if update interval exceed
-    if count >= UPDATE_INTERVAL:
-        count = 0
 
-    # If interval reached, choose random shape type then add to `moving_shapes` list
-    if count == 0:
-        shape_type = shape_types[randrange(len(shape_types))]
-        pos = Point2(randrange(9 - shape_type.compute_width()), 0)
-        initial_vel = Vector2(0, 1)
-        shape = Shape(shape_type, pos, initial_vel)
-        shapes.add(shape)
-
-    # Increment count and wait
-    count += 1
-    sleep(0.2)
-
-# sense.low_light = False
+if __name__ == "__main__":
+    main()
