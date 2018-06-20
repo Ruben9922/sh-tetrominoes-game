@@ -136,7 +136,7 @@ def main():
 
         # Increment count and wait
         count += 1
-        sleep(0.2)
+        sleep(1)
     # sense.low_light = False
 
 
