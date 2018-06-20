@@ -41,7 +41,7 @@ def main():
     sense = SenseHat()
     # sense.set_rotation(180)
     # sense.low_light = True
-    UPDATE_INTERVAL = 7
+    update_interval = 7
     shape_colour = [255, 153, 51]
     background_colour = [0, 0, 0]
     shape_types = [
@@ -106,7 +106,7 @@ def main():
             shape.display()
 
         # Set count to zero if update interval exceed
-        if count >= UPDATE_INTERVAL:
+        if count >= update_interval:
             count = 0
 
         # If interval reached, choose random shape type then add to `moving_shapes` list
