@@ -21,7 +21,7 @@ class Shape:
 
     def collides(self, shapes):
         max_x = max(point.x for point in self.shape_type.points)
-        for x in range(max_x):  # For each column
+        for x in range(max_x + 1):  # For each column
             column = (point for point in self.shape_type.points if point.x == x)
             lowest_point = max(column, key=lambda point: point.y)  # Point with the highest y-value in the column
             lowest_point_wc = lowest_point + self.pos
