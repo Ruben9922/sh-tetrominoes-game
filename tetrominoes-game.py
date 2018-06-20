@@ -50,10 +50,18 @@ class ShapeType:
         return abs(max_y - min_y) + 1
 
 
-def move(event, shapes, direction):
+def move_left(event, shapes):
     if event.action == "pressed":
         last_shape = shapes[-1]
-        last_shape.pos += direction
+        if last_shape.pos.x > 0:
+            last_shape.pos += Vector2(-1, 0)
+
+
+def move_right(event, shapes):
+    if event.action == "pressed":
+        last_shape = shapes[-1]
+        if last_shape.pos.x < 8 - last_shape.shape_type.compute_width():
+            last_shape.pos += Vector2(1, 0)
 
 
 def main():
@@ -113,8 +121,8 @@ def main():
     shapes = []
     count = 0
 
-    sense.stick.direction_left = lambda event: move(event, shapes, Vector2(-1, 0))
-    sense.stick.direction_right = lambda event: move(event, shapes, Vector2(1, 0))
+    sense.stick.direction_left = lambda event: move_left(event, shapes)
+    sense.stick.direction_right = lambda event: move_right(event, shapes)
 
     while True:
         sense.clear(background_colour)
