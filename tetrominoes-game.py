@@ -118,10 +118,6 @@ def main():
         for shape in shapes:
             shape.pos += shape.vel
 
-        # Display shapes
-        for shape in shapes:
-            shape.display()
-
         # Set count to zero if update interval exceed
         if count >= update_interval:
             count = 0
@@ -133,6 +129,10 @@ def main():
             initial_vel = Vector2(0, 1)
             shape = Shape(shape_type, pos, initial_vel)
             shapes.add(shape)
+
+        # Display shapes
+        for shape in shapes:
+            shape.display()
 
         # Increment count and wait
         count += 1
