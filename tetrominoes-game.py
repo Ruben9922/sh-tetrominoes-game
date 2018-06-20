@@ -6,6 +6,8 @@ from sense_emu import SenseHat
 
 
 class Shape:
+    shape_colour = [255, 153, 51]
+
     def __init__(self, shape_type, pos, vel):
         self.shape_type = shape_type
         self.pos = pos
@@ -14,7 +16,7 @@ class Shape:
     def display(self):
         for point in self.shape_type.points:
             actual_pos = self.pos + point
-            sense.set_pixel(actual_pos.x, actual_pos.y, shape_colour)
+            sense.set_pixel(actual_pos.x, actual_pos.y, self.shape_colour)
 
     def collides(self):
         return False  # Need to implement properly
@@ -36,13 +38,14 @@ class ShapeType:
 
 
 def main():
-    global sense, shape_colour
+    global sense
+
     # Initial setup
     sense = SenseHat()
     # sense.set_rotation(180)
     # sense.low_light = True
+
     update_interval = 7
-    shape_colour = [255, 153, 51]
     background_colour = [0, 0, 0]
     shape_types = [
         ShapeType([
@@ -90,6 +93,7 @@ def main():
     ]
     shapes = set()
     count = 0
+
     while True:
         sense.clear(background_colour)
         # Update shape velocities
