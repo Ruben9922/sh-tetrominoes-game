@@ -50,6 +50,12 @@ class ShapeType:
         return abs(max_y - min_y) + 1
 
 
+def move(event, shapes, direction):
+    if event.action == "pressed":
+        last_shape = shapes[-1]
+        last_shape.pos += direction
+
+
 def main():
     global sense
 
@@ -104,8 +110,11 @@ def main():
             Point2(1, 2),
         ]),
     ]
-    shapes = set()
+    shapes = []
     count = 0
+
+    sense.stick.direction_left = lambda event: move(event, shapes, Vector2(-1, 0))
+    sense.stick.direction_right = lambda event: move(event, shapes, Vector2(1, 0))
 
     while True:
         sense.clear(background_colour)
@@ -128,7 +137,7 @@ def main():
             pos = Point2(randrange(9 - shape_type.compute_width()), 1 - shape_type.compute_height())
             initial_vel = Vector2(0, 1)
             shape = Shape(shape_type, pos, initial_vel)
-            shapes.add(shape)
+            shapes.append(shape)
 
         # Display shapes
         for shape in shapes:
