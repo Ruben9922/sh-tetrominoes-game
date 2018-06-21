@@ -1,3 +1,4 @@
+import math
 from random import randrange
 from time import sleep
 
@@ -30,6 +31,19 @@ class Shape:
                             return True
         return False
 
+    def rotate(self):
+        width = self.shape_type.compute_width()
+        height = self.shape_type.compute_height()
+        points = self.shape_type.points
+
+        centre = Point2((width - 1) / 2, (height - 1) / 2)
+        for i, point in enumerate(points):
+            diff = point - centre  # Effectively translate so centre is at origin
+            diff[:] = (diff.y, -diff.x)  # Effectively rotate around origin
+            point = centre + diff  # Effectively translate back
+            point[:] = map(math.floor, point[:])
+            points[i] = point
+
 
 class ShapeType:
     def __init__(self, points):
@@ -59,6 +73,12 @@ def move_right(event, shapes):
         if (last_shape.pos.x < 8 - last_shape.shape_type.compute_width()
                 and not last_shape.collides(shapes, Vector2(1, 0))):
             last_shape.pos += Vector2(1, 0)
+
+
+def rotate_shape(event, shapes):
+    if event.action == "pressed":
+        last_shape = shapes[-1]
+        last_shape.rotate()
 
 
 def main():
@@ -120,6 +140,7 @@ def main():
 
     sense.stick.direction_left = lambda event: move_left(event, shapes)
     sense.stick.direction_right = lambda event: move_right(event, shapes)
+    sense.stick.direction_up = lambda event: rotate_shape(event, shapes)
 
     while True:
         sense.clear(background_colour)
