@@ -19,18 +19,14 @@ class Shape:
             if 0 <= actual_pos.x <= 7 and 0 <= actual_pos.y <= 7:
                 sense.set_pixel(actual_pos.x, actual_pos.y, self.shape_colour)
 
-    def collides(self, shapes):
-        max_x = max(point.x for point in self.shape_type.points)
-        for x in range(max_x + 1):  # For each column
-            column = (point for point in self.shape_type.points if point.x == x)
-            lowest_point = max(column, key=lambda point: point.y)  # Point with the highest y-value in the column
-            lowest_point_wc = lowest_point + self.pos
-
+    def collides(self, shapes, offset):
+        for point1 in self.shape_type.points:
+            point1_wc = point1 + self.pos
             for shape in shapes:
-                if shape != self:  # Don't compare to itself
-                    for point in shape.shape_type.points:
-                        point_wc = point + shape.pos
-                        if point_wc - lowest_point_wc == Vector2(0, 1):
+                if shape != self:  # Don't compare this shape to itself
+                    for point2 in shape.shape_type.points:
+                        point2_wc = point2 + shape.pos
+                        if point2_wc - point1_wc == offset:
                             return True
         return False
 
@@ -53,14 +49,15 @@ class ShapeType:
 def move_left(event, shapes):
     if event.action == "pressed":
         last_shape = shapes[-1]
-        if last_shape.pos.x > 0:
+        if last_shape.pos.x > 0 and not last_shape.collides(shapes, Vector2(-1, 0)):
             last_shape.pos += Vector2(-1, 0)
 
 
 def move_right(event, shapes):
     if event.action == "pressed":
         last_shape = shapes[-1]
-        if last_shape.pos.x < 8 - last_shape.shape_type.compute_width():
+        if (last_shape.pos.x < 8 - last_shape.shape_type.compute_width()
+                and not last_shape.collides(shapes, Vector2(1, 0))):
             last_shape.pos += Vector2(1, 0)
 
 
@@ -128,7 +125,7 @@ def main():
         sense.clear(background_colour)
         # Update shape velocities
         for shape in shapes:
-            if shape.pos.y >= 8 - shape.shape_type.compute_height() or shape.collides(shapes):
+            if shape.pos.y >= 8 - shape.shape_type.compute_height() or shape.collides(shapes, Vector2(0, 1)):
                 shape.vel = Vector2(0, 0)
 
         # Update shape positions based on their updated velocities
